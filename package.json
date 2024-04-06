@@ -1,0 +1,27 @@
+{
+  "name": "contactslist",
+  "version": "1.0.0",
+  "description": "contacts list",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlirzaMehrzad/contactsList.git"
+  },
+  "keywords": [
+    "contactslist"
+  ],
+  "author": "ALireza Mehrzad",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AlirzaMehrzad/contactsList/issues"
+  },
+  "homepage": "https://github.com/AlirzaMehrzad/contactsList#readme",
+  "dependencies": {
+    "linebyline": "^1.3.0",
+    "readline": "^1.3.0"
+  }
+}
