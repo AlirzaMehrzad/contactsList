@@ -30,7 +30,8 @@ async function saveContacts() {
 }
 
 async function help() {
-    console.log('n: Add new contact\nl: Show contacts list\nq: quit');
+    console.log('n: Add new contact\nd: delete a contact\nl: Show contacts list\nq: quit');
+    console.log('----------------')
     const action = await new Promise((resolve) => {
         rl.question('Enter your input:', (input) => {
             resolve(input);
@@ -41,7 +42,10 @@ async function help() {
         await addNewContact();
     } else if (action === 'l') {
         showContactsList();
-    } else {
+    }else if (action === 'd'){
+        await deleteContact()
+    }
+     else {
         quit();
     }
 
@@ -60,13 +64,37 @@ async function addNewContact() {
         });
     });
 
+    const latestContact = contactsList[contactsList.length - 1]
+    const id = latestContact ? latestContact.id + 1 : 0
+
     const newContact = {
-        id: contactsList.length,
+        id,
         firstName,
         lastName
     };
     contactsList.push(newContact);
     await saveContacts();
+}
+
+async function deleteContact(){
+    if (contactsList.length < 1) {
+        console.error("There is no contactc to delete")
+    }
+
+    showContactsList()
+
+    const contactId = await new Promise((resolve => {
+        rl.question('Delete ID: ', (input) => {
+            resolve(input)
+        })
+    }))
+
+    const contactINdex = contactsList.findIndex(({ id }) => id === Number(contactId))
+
+    if(contactINdex < 0) console.error('Invalid ID.')
+
+    contactsList.splice(contactINdex, 1)
+    saveContacts()
 }
 
 function showContactsList() {
