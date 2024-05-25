@@ -1,39 +1,39 @@
-import http from "http";
+import express from 'express'
 import url from "url";
 import { loadContacts, CONTACTS_LIST_FILE_PATH, formatContactsList } from "./services.js";
 
+const app = express();
+
 const contactsList = [];
 
-const server = http.createServer((req, res) => {
-  const urlData = url.parse(req.url, true);
+function loggerMidddleware(req, res, next) {
+  console.log('Request:', req.method, req.url);
+  next()
+}
 
-  console.log(req.method, req.url);
+app.disable('etag')
+app.use(loggerMidddleware)
 
-  let responseData = null
-
-  if (urlData.query.format == "true") {
-    res.setHeader("Content-Type", "text/html");
-    responseData = formatContactsList(contactsList)
-  } else {
-    responseData = JSON.stringify(contactsList)
-    res.setHeader("Content-Type", "application/json");
+app.get('/list', (req,res) =>{
+  if(req.query.format){
+    const responseData = `<pre>${formatContactsList(contactsList)}</pre>`;
+    res.type('html')
+    res.send(responseData)
+    return
   }
 
-  res.writeHead(200);
-  res.write(JSON.stringify(responseData));
-
-  res.end();
-});
+  res.json(contactsList)
+})
 
 async function main() {
   const loadedContacts = await loadContacts();
 
   contactsList.push(...loadedContacts);
-  server.listen(8080, () => {
-    console.log("Server is runnig on port 8080");
+  app.listen(8080, () => {
+    console.log("Express server is runnig on port 8080");
   });
 
   // await help();
 }
 
-main();
+await main();
