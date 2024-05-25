@@ -56,6 +56,38 @@ router.delete('/delete/:id', (req, res) =>{
     })
 })
 
+router.put('/update/:id', (req, res) =>{
+    if (contactsList.length < 1) {
+        res.status(400).send({
+            message: 'There is no contact on the list'
+        })
+        return;
+    }
+
+    const contactINdex = contactsList.findIndex(({ id }) => id === Number(req.params.id))
+
+    if(contactINdex < 0){
+      res.status(400).send({
+        message: 'Invalid ID'
+       })
+       return;
+    }
+
+    const contact = contactsList[contactINdex]
+    const updatedContact = {
+        ...contact,
+        firstName: req.body.firstName || contact.firstName,
+        lastName: req.body.lastName || contact.lastName
+    }
+
+    contactsList.splice(contactINdex, 1, updatedContact)
+    saveContacts(contactsList)
+
+    res.status(200).send({
+        message: `contact #${req.params.id} updated`
+    })
+})
+
 
 const loadedContacts = await loadContacts();
 contactsList.push(...loadedContacts);
