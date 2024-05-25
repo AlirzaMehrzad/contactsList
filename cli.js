@@ -2,6 +2,8 @@ import readline from 'readline';
 import { stdin as input, stdout as output } from "process";
 import fs from 'fs/promises';
 import { loadContacts,
+         saveContacts,
+         generateNewContactId,
          formatContactsList,  
          CONTACTS_LIST_FILE_PATH} from './services.js';
 
@@ -10,14 +12,7 @@ const contactsList = [];
 
 console.log('--- contacts list ----');
 
-async function saveContacts() {
-    try {
-        const contactsListJSON = JSON.stringify(contactsList);
-        await fs.writeFile(CONTACTS_LIST_FILE_PATH, contactsListJSON);
-    } catch (error) {
-        throw error;
-    }
-}
+
 
 async function help() {
     console.log('n: Add new contact\nd: delete a contact\nl: Show contacts list\nq: quit');
@@ -54,8 +49,7 @@ async function addNewContact() {
         });
     });
 
-    const latestContact = contactsList[contactsList.length - 1]
-    const id = latestContact ? latestContact.id + 1 : 0
+    const id = generateNewContactId(contactsList)
 
     const newContact = {
         id,
@@ -63,7 +57,7 @@ async function addNewContact() {
         lastName
     };
     contactsList.push(newContact);
-    await saveContacts();
+    saveContacts(contactsList);
 }
 
 async function deleteContact(){
@@ -84,7 +78,7 @@ async function deleteContact(){
     if(contactINdex < 0) console.error('Invalid ID.')
 
     contactsList.splice(contactINdex, 1)
-    saveContacts()
+    saveContacts(contactsList)
 }
 
 function showContactsList() {

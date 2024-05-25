@@ -1,5 +1,5 @@
 import express from 'express'
-import { formatContactsList, loadContacts } from '../services.js';
+import { formatContactsList, loadContacts, generateNewContactId, saveContacts} from '../services.js';
 const router = express.Router()
 
 const contactsList = [];
@@ -14,7 +14,23 @@ router.get('/list', (req,res) =>{
     }
   
     res.json(contactsList)
-  })
+})
+
+router.post('/new', (req, res) =>{
+    const { firstName, lastName} = req.body
+
+    const id = generateNewContactId(contactsList)
+
+    const newContact = {
+        id,
+        firstName,
+        lastName
+    };
+    contactsList.push(newContact);
+    saveContacts(contactsList);
+
+    res.send(`The contact "#${id} ${firstName} ${lastName}" added !`)
+})
 
 
 const loadedContacts = await loadContacts();
