@@ -1,11 +1,10 @@
 import readline from 'readline';
 import { stdin as input, stdout as output } from "process";
+import { Contact, sequelize } from './models/index.js';
 import fs from 'fs/promises';
-import { loadContacts,
-         saveContacts,
-         generateNewContactId,
+import { 
          formatContactsList,  
-         CONTACTS_LIST_FILE_PATH} from './services.js';
+         } from './services.js';
 
 const rl = readline.createInterface({ input, output });
 const contactsList = [];
@@ -43,46 +42,46 @@ async function addNewContact() {
             resolve(input);
         });
     });
+    const mobilePhone = await new Promise((resolve) => {
+        rl.question('mobilePhone:', (input) => {
+            resolve(input);
+        });
+    });
+    const isFavorite = await new Promise((resolve) => {
+        rl.question('isFavorite:', (input) => {
+            resolve(input);
+        });
+    });
     const lastName = await new Promise((resolve) => {
         rl.question('Last name:', (input) => {
             resolve(input);
         });
     });
 
-    const id = generateNewContactId(contactsList)
-
-    const newContact = {
-        id,
+    await Contact.create({
         firstName,
-        lastName
-    };
-    contactsList.push(newContact);
-    saveContacts(contactsList);
+        lastName,
+        mobilePhone,
+        isFavorite
+    });
 }
 
 async function deleteContact(){
-    if (contactsList.length < 1) {
-        console.error("There is no contactc to delete")
-    }
-
-    showContactsList()
-
+    await showContactsList()
     const contactId = await new Promise((resolve => {
         rl.question('Delete ID: ', (input) => {
             resolve(input)
         })
     }))
 
-    const contactINdex = contactsList.findIndex(({ id }) => id === Number(contactId))
-
-    if(contactINdex < 0) console.error('Invalid ID.')
-
-    contactsList.splice(contactINdex, 1)
-    saveContacts(contactsList)
+    await Contact.destroy({
+        where: {id: contactId}
+    })
 }
 
-function showContactsList() {
-    const formattedContactsList = formatContactsList(contactsList)
+async function showContactsList() {
+    const contacts = await Contact.findAll();
+    const formattedContactsList = formatContactsList(contacts)
 
     console.log('Contacts List:');
     console.log(formattedContactsList);
@@ -93,11 +92,14 @@ function quit() {
 }
 
 async function main() {
-    const loadedContacts = await loadContacts();
-    contactsList.push(
-        ...loadedContacts
-    )
-    await help();
+    try{
+        await sequelize.sync({ force: false })
+        console.log("[All models were synchronized successfully]")
+        help();
+    }catch(error){
+        console.log(('Error in syncing models', error))
+    }
+       
 }
 
 main();
