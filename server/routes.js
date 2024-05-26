@@ -1,19 +1,21 @@
 import express from 'express'
 import { formatContactsList, loadContacts, generateNewContactId, saveContacts} from '../services.js';
+import query from '../db.js'
 const router = express.Router()
 
 const contactsList = [];
 
 
-router.get('/list', (req,res) =>{
+router.get('/list', async (req,res) =>{
+    const contactListDB = await query('SELECT * FROM contacts')
     if(req.query.format){
-      const responseData = `<pre>${formatContactsList(contactsList)}</pre>`;
+      const responseData = `<pre>${formatContactsList(contactListDB.rows)}</pre>`;
       res.type('html')
       res.send(responseData)
       return
     }
   
-    res.json(contactsList)
+    res.json(contactListDB.rows)
 })
 
 router.post('/new', (req, res) =>{
