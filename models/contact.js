@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize"
 
 export default function(sequelize){
-    return sequelize.define('Users', {
+    return sequelize.define('contacts', {
         firstName: {
             type: DataTypes.STRING(20), 
             allowNull: false

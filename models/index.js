@@ -5,13 +5,16 @@ import ContactCategoryModel from './contactCategory.js'
 const sequelize = new Sequelize({
     username: 'postgres',
     password: 'admin',
-    database: 'contactList',
+    database: 'contactsList',
     dialect: 'postgres',
     logging: false
 })
 
 const Contact = ContactModel(sequelize)
 const ContactCategory = ContactCategoryModel(sequelize)
+
+Contact.hasOne(ContactCategory)
+ContactCategory.belongsTo(Contact)
 
 export {sequelize}
 export {Contact}
