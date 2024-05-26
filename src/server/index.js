@@ -1,15 +1,13 @@
 import express from 'express'
-import routes from './routes.js'
+import routes from './routes/contacts.js'
 import bodyParser from 'body-parser';
 import { sequelize } from '../models/index.js';
-const app = express();
+import loggerMidddleware from './middlewares/logger.js';
+import configs from '../configs/server.js'
+import dotenv from 'dotenv'
 
-
-function loggerMidddleware(req, res, next) {
-  console.log('Request:', req.method, req.url);
-  next()
-}
-
+dotenv.config()
+console.log("eeenv", typeof process.env.DB_PASSWORD)
 try{
   await sequelize.sync({ alter: true })
   console.log("All models were synchronized successfully")
@@ -17,16 +15,16 @@ try{
   console.log(('Error in syncing models', error))
 }
 
+const app = express();
+
 
 app.disable('etag')
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(loggerMidddleware)
 app.use('/contacts', routes)
 
-
-
-app.listen(8080, () => {
+app.listen(configs.port, () => {
     console.log("Express server is runnig on port 8080");
-  });
+});
 
 

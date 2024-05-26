@@ -1,10 +1,8 @@
 import readline from 'readline';
 import { stdin as input, stdout as output } from "process";
-import { Contact, sequelize } from './models/index.js';
+import { Contact, sequelize } from '../models/index.js';
 import fs from 'fs/promises';
-import { 
-         formatContactsList,  
-         } from './services.js';
+import { formatContactsList } from '../utils.js';
 
 const rl = readline.createInterface({ input, output });
 const contactsList = [];
