@@ -1,6 +1,8 @@
 import { Contact } from '../../models/index.js'
 import { formatContactsList} from '../../utils.js';
+import multer from 'multer'
 
+const upload = multer({ storage: multer.memoryStorage() })
 
 export async function getContacts(req, res) {
         try {
@@ -11,23 +13,49 @@ export async function getContacts(req, res) {
                 res.send(responseData)
                 return
               }
-              res.json(contacts)
+
+              const normalizedContacts = contacts.map(({dataValues: { id, profilePicture, ...rest}}) =>({
+                id,
+                profilePicture: profilePicture ? `/images/profile-picture/${id}` : null,
+                ...rest
+              }))
+
+              res.json(normalizedContacts)
     
         } catch (error) {
             res.status(500).send({
                 message: 'something went wrong'
             })
         }
+};
+
+export async function getContactProfilePicture(req, res){
+    try {
+        const { profilePicture } = await Contact.findOne({
+            attributes: ['profilePicture'],
+            where: { id: req.params.id}
+        })
+    
+        res.type('image/jpeg');
+        res.send(profilePicture)
+    } catch (error) {
+        res.status(500).send({
+            message: 'Wrong input'
+        })
+    }
+
 }
 
-export async function createContact(req, res){
+export async function createContactCtl(req, res){
         const { firstName, lastName, mobilePhone, isFavorite} = req.body;
+        const { size, buffer: profilePicture } = req.file
         try {
          const {id} = await Contact.create({
                 firstName,
                 lastName,
                 mobilePhone,
-                isFavorite
+                isFavorite,
+                profilePicture
          });
          res.send(`The contact "#${id} ${firstName} ${lastName}" added !`)
         } catch (error) {
@@ -35,7 +63,13 @@ export async function createContact(req, res){
                 message: 'Wrong input'
             })
         }
-}
+};
+
+export const createContact = [
+    upload.single('profilePicture'),
+    createContactCtl
+ ]
+    
 
 export async function deleteContact(req, res){
         try {
@@ -51,7 +85,7 @@ export async function deleteContact(req, res){
                 message: 'There is no contact on database'
             })
         }
-}
+};
 
 export async function updateContact(req, res){
         const { firstName, lastName, mobilePhone, isFavorite} = req.body;
@@ -73,4 +107,6 @@ export async function updateContact(req, res){
                 message: 'There is no contact on the list'
             })
         }
-}
+};
+
+
