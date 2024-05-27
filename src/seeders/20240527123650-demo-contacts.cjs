@@ -1,0 +1,57 @@
+'use strict';
+
+const path = require('path');
+const { readFile } = require('fs/promises');
+const { faker } = require('@faker-js/faker');
+
+const PROFILE_PICTURES_BASE_PATH = path.resolve('src', 'seeders', 'profilePictures');
+
+function getRandomNumber(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+async function generateSampleContacts({ count, ContactCategories, Users }) {
+  const data = [];
+
+  for (let i = 1; i <= count; i++) {
+    const profilePicture = await readFile(`${PROFILE_PICTURES_BASE_PATH}/${getRandomNumber(1, 9)}.png`);
+    const firstName = faker.person.firstName().substring(5, 20);
+    const lastName = faker.person.lastName().substring(5, 20);
+    const mobilePhone = faker.phone.number('+98#########');
+    const isFavorite = faker.datatype.boolean();
+    const createdAt = faker.date.past();
+    const updatedAt = faker.date.recent();
+    const contactsCategoryId = ContactCategories[getRandomNumber(0, ContactCategories.length - 1)].id;
+    const UserId = Users[getRandomNumber(0, Users.length - 1)].id;
+
+    const record = {
+      profilePicture,
+      firstName,
+      lastName,
+      mobilePhone,
+      isFavorite,
+      createdAt,
+      updatedAt,
+      contactsCategoryId,
+      UserId,
+    };
+
+    data.push(record);
+  }
+
+  return data;
+};
+
+/** @type {import('sequelize-cli').Migration} */
+module.exports = {
+  async up (queryInterface, Sequelize) {
+    const [ContactCategories] = await queryInterface.sequelize.query('SELECT id FROM "contactsCategories";');
+    const [Users] = await queryInterface.sequelize.query('SELECT id FROM "Users";');
+
+    await queryInterface.bulkInsert(
+      'contacts',
+      await generateSampleContacts({ count: 500, ContactCategories, Users }),
+    );
+  },
+  async down (queryInterface, Sequelize) {
+    await queryInterface.bulkDelete('contacts', null, {});
+  }
+};
