@@ -1,3 +1,4 @@
+import { Sequelize } from 'sequelize';
 import { Contact } from '../../models/index.js'
 import { formatContactsList} from '../../utils.js';
 import multer from 'multer'
@@ -6,12 +7,22 @@ const upload = multer({ storage: multer.memoryStorage() })
 
 async function loadContacts(req, res, next){
     try {
-        const { sort, desc } = req.query;
+        const { sort, desc, q } = req.query;
         const order = []
+        const where = {}
+        if (q) {
+            where[Sequelize.Op.or] = [
+                { firstName: { [Sequelize.Op.like]: `%${q}%` } },
+                { lastName: { [Sequelize.Op.like]: `%${q}%` } },
+                { mobilePhone: { [Sequelize.Op.like]: `%${q}%` } },
+            ];
+        }    
+
         if(sort){
             order.push([sort, desc === 'true' ? 'DESC' : 'ASC'])
         }
         const contacts = await Contact.findAll({
+            where,
             order,
         });
         
