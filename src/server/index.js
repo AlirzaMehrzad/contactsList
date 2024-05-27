@@ -1,11 +1,13 @@
 import express from 'express'
 import contactsRoutes from './routes/contacts.js'
 import imagesRoutes from './routes/images.js'
+import userRoutes from './routes/users.js'
 import bodyParser from 'body-parser';
 import { sequelize } from '../models/index.js';
 import loggerMidddleware from './middlewares/logger.js';
 import configs from '../configs/server.js'
 import dotenv from 'dotenv'
+import './auth.js'
 
 dotenv.config()
 console.log("eeenv", typeof process.env.DB_PASSWORD)
@@ -24,6 +26,8 @@ app.use(bodyParser.urlencoded({extended: false}))
 app.use(loggerMidddleware)
 app.use('/contacts', contactsRoutes)
 app.use('/images', imagesRoutes)
+app.use('/users', userRoutes)
+
 
 
 app.listen(configs.port, () => {
