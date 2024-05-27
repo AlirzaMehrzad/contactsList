@@ -3,13 +3,16 @@ import { Contact } from '../../models/index.js'
 import { formatContactsList} from '../../utils.js';
 import multer from 'multer'
 
+const CONTACTS_LIST_PAGE_SIZE = 20;
+
 const upload = multer({ storage: multer.memoryStorage() })
 
 async function loadContacts(req, res, next){
     try {
-        const { sort, desc, q } = req.query;
-        const order = []
-        const where = {}
+        const { sort, desc, q, page = 1} = req.query;
+        const order = [];
+        const where = {};
+
         if (q) {
             where[Sequelize.Op.or] = [
                 { firstName: { [Sequelize.Op.like]: `%${q}%` } },
@@ -21,9 +24,12 @@ async function loadContacts(req, res, next){
         if(sort){
             order.push([sort, desc === 'true' ? 'DESC' : 'ASC'])
         }
+
         const contacts = await Contact.findAll({
             where,
             order,
+            limit: CONTACTS_LIST_PAGE_SIZE,
+            offset: Math.max((page - 1) * CONTACTS_LIST_PAGE_SIZE)
         });
         
         req.locals = {
@@ -37,7 +43,7 @@ async function loadContacts(req, res, next){
     }
 }
 
-async function getContactsFormatted(req, res, next){
+function getContactsFormatted(req, res, next){
     if(req.query.format !== 'true'){
         return next()
     }
@@ -47,7 +53,7 @@ async function getContactsFormatted(req, res, next){
     res.send(responseData)
 }
 
-async function getContactsCtl(req, res) {
+function getContactsCtl(req, res) {
     const {contacts} = req.locals
     const normalizedContacts = contacts.map(({dataValues: { id, profilePicture, ...rest}}) =>({
         id,
