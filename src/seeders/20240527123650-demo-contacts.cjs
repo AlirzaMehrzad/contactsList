@@ -13,8 +13,8 @@ async function generateSampleContacts({ count, ContactCategories, Users }) {
 
   for (let i = 1; i <= count; i++) {
     const profilePicture = await readFile(`${PROFILE_PICTURES_BASE_PATH}/${getRandomNumber(1, 9)}.png`);
-    const firstName = faker.person.firstName().substring(5, 20);
-    const lastName = faker.person.lastName().substring(5, 20);
+    const firstName = faker.person.firstName();
+    const lastName = faker.person.lastName();
     const mobilePhone = faker.phone.number('+98#########');
     const isFavorite = faker.datatype.boolean();
     const createdAt = faker.date.past();
