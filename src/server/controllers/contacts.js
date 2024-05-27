@@ -48,7 +48,7 @@ export async function getContactProfilePicture(req, res){
 
 export async function createContactCtl(req, res){
         const { firstName, lastName, mobilePhone, isFavorite} = req.body;
-        const { size, buffer: profilePicture } = req.file
+        const { buffer: profilePicture } = req.file
         try {
          const {id} = await Contact.create({
                 firstName,
