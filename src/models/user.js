@@ -6,6 +6,7 @@ async function hashPassword(user) {
   user.password = await bcrypt.hash(user.password, salt);
 }
 
+
 export default function(sequelize) {
     const User = sequelize.define('User', {
         fullname: {
