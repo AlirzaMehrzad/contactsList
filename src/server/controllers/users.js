@@ -33,7 +33,7 @@ function returnAuthInfo(req, res){
     const payload = {
         user: { id, username}
     }
-    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: 30}) ;
+    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: 30 * 60 * 60 * 24}) ;
 
     res.json({
         token

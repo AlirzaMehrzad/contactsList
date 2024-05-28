@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { Contact } from '../../models/index.js'
 import { formatContactsList} from '../../utils.js';
+import passport from 'passport';
 import multer from 'multer'
 
 const CONTACTS_LIST_PAGE_SIZE = 20;
@@ -11,7 +12,9 @@ async function loadContacts(req, res, next){
     try {
         const { sort, desc, q, page = 1} = req.query;
         const order = [];
-        const where = {};
+        const where = {
+            UserId: req.user.id
+        };
 
         if (q) {
             where[Sequelize.Op.or] = [
@@ -65,6 +68,7 @@ function getContactsCtl(req, res) {
 };
 
 export const getContacts = [
+    passport.authenticate('jwt', {session: false}),
     loadContacts,
     getContactsFormatted,
     getContactsCtl
@@ -89,7 +93,7 @@ export async function getContactProfilePicture(req, res){
 
 }
 
-export async function createContactCtl(req, res){
+async function createContactCtl(req, res){
         const { firstName, lastName, mobilePhone, isFavorite} = req.body;
         const { buffer: profilePicture } = req.file
         try {
@@ -109,16 +113,23 @@ export async function createContactCtl(req, res){
 };
 
 export const createContact = [
+    passport.authenticate('jwt', {session: false}),
     upload.single('profilePicture'),
     createContactCtl
  ]
     
 
-export async function deleteContact(req, res){
+async function deleteContactCtl(req, res){
         try {
-            await Contact.destroy({
-                where: {id: req.params.id}
+            const deletedContact = await Contact.destroy({
+                where: {id: req.params.id, UserId: req.user.id}
             })
+
+            if(!deletedContact){
+                res.status(400).send({
+                    message: `contact not found`
+                })
+            }
     
             res.status(200).send({
                 message: `contact #${req.params.id} deleted`
@@ -130,17 +141,28 @@ export async function deleteContact(req, res){
         }
 };
 
-export async function updateContact(req, res){
+export const deleteContact = [
+    passport.authenticate('jwt', {session: false}),
+    deleteContactCtl
+]
+
+async function updateContactCtl(req, res){
         const { firstName, lastName, mobilePhone, isFavorite} = req.body;
         try {
-            await Contact.update({
+            const updatedContact = await Contact.update({
                 firstName, 
                 lastName, 
                 mobilePhone, 
                 isFavorite
             },{
-                where: { id: req.params.id}
+                where: { id: req.params.id, USerId: req.user.id}
             })
+
+            if(!updatedContact){
+                res.status(400).send({
+                    message: `contact not found`
+                })
+            }
     
             res.status(200).send({
                 message: `contact #${req.params.id} updated`
@@ -151,5 +173,10 @@ export async function updateContact(req, res){
             })
         }
 };
+
+export const updateContact = [
+    passport.authenticate('jwt', {session: false}),
+    updateContactCtl
+]
 
 

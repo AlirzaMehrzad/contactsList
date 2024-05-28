@@ -14,21 +14,21 @@ module.exports = {
       {
         fullname: 'Megan Walter',
         username: 'mwalter',
-        password: '123',
+        password: '$2b$10$QbEhqnxwCoGegmmLCHp6UeQSkEFLwIEsa8Tali.B2ps6.gP/4bsgW',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
         fullname: 'Henry Cavil',
         username: 'hcavil',
-        password: '123',
+        password: '$2b$10$QbEhqnxwCoGegmmLCHp6UeQSkEFLwIEsa8Tali.B2ps6.gP/4bsgW',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
         fullname: 'Reza Sadeghi',
         username: 'rsadeghi',
-        password: '123',
+        password: '$2b$10$QbEhqnxwCoGegmmLCHp6UeQSkEFLwIEsa8Tali.B2ps6.gP/4bsgW',
         createdAt: new Date(),
         updatedAt: new Date(),
       }
