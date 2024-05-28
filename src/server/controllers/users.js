@@ -21,3 +21,7 @@ export const signup = [
     passport.authenticate('signup', {session: false}),
     returnCreatedUser
 ]
+
+export const login = [
+    
+]
